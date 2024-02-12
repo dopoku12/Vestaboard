@@ -1,38 +1,61 @@
 const express = require("express");
 const axios = require("axios");
+const { DefaultAzureCredential } = require("@azure/identity");
+const { SecretClient } = require("@azure/keyvault-secrets");
 const app = express();
 const characterCodes = require("./chracters.json");
 
 const port = 3030;
 
-const apikey = "c2dc4f5c+f22a+4868+b515+e4fc1cc2af66";
-const apisecret = "2ec8479dde4340dca4aedbfd1b18fafc";
-
 app.use(express.json());
 
-app.get("/", (req, res) => {
-   console.log(characterCodes);
+const getSecret = async () => {
+   const secretName = ["Vestaboard-API-Secret", "Vestaboard-RW-API-Key"];
 
-   axios
-      .get("https://rw.vestaboard.com/", {
+   // Authenticate to Azure
+   const credential = new DefaultAzureCredential();
+
+   // Create SecretClient
+   const vaultName = "kv-vestaboard-use2-dev";
+   const url = `https://${vaultName}.vault.azure.net`;
+   const client = new SecretClient(url, credential);
+
+   // Get secrets concurrently
+   const secretPromises = await Promise.all(
+      secretName.map(async (val) => (await client.getSecret(val)).value)
+   );
+
+   return {
+      VestaboardAPISecret: secretPromises[0],
+      VestaboardRWAPIKey: secretPromises[1],
+   };
+};
+
+app.get("/", async (req, res) => {
+   try {
+      const secrets = await getSecret();
+
+      const readVestaBoard = await axios.get("https://rw.vestaboard.com/", {
          headers: {
             "Content-Type": "application/json",
-            "X-Vestaboard-Read-Write-Key": apikey,
-            //   "x-vestaboard-api-secret":apisecret,
+            "X-Vestaboard-Read-Write-Key": secrets.VestaboardRWAPIKey,
          },
-      })
-      .then((res) => {
-         const data = JSON.parse(res.data.currentMessage.layout);
-         const dataArr = Object.values(data);
-
-         console.log(dataArr);
-         dataArr.map((i) => {
-            console.log(i);
-         });
-      })
-      .catch((err) => {
-         console.error("error:", err);
       });
+
+      //parsing json & converting into an array
+      const data = Object.values(
+         JSON.parse(readVestaBoard.data.currentMessage.layout)
+      );
+
+      data.map((i) => {
+         console.log(i);
+      });
+
+      res.status(200).json({ message: "Data retrieved successfully" });
+   } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({ error: "Internal server error" });
+   }
 });
 
 app.listen(port, () => {

@@ -1,0 +1,63 @@
+{
+   "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+   "type": "AdaptiveCard",
+   "version": "1.2",
+   "body": [
+      {
+         "type": "TextBlock",
+         "text": "VestaBoard",
+         "weight": "Bolder",
+         "size": "Medium"
+      }
+   ],
+   "actions": [
+      {
+         "type": "Action.ShowCard",
+         "title": "Send",
+         "card": {
+            "type": "AdaptiveCard",
+            "body": [
+               {
+                  "type": "Input.Text",
+                  "id": "sendInput",
+                  "isMultiline": true,
+                  "placeholder": "Enter your message",
+                  "isRequired": true
+               }
+            ],
+            "actions": [
+               {
+                  "type": "Action.Submit",
+                  "title": "Submit"
+               }
+            ]
+         }
+      },
+      {
+         "type": "Action.ShowCard",
+         "title": "Update",
+         "card": {
+            "type": "AdaptiveCard",
+            "body": [
+               {
+                  "type": "Input.Text",
+                  "id": "updateInput",
+                  "isMultiline": true,
+                  "placeholder": "Enter your update",
+                  "isRequired": true
+               }
+            ],
+            "actions": [
+               {
+                  "type": "Action.Submit",
+                  "title": "Submit"
+               }
+            ]
+         }
+      },
+      {
+         "type": "Action.Submit",
+         "title": "Delete"
+      }
+   ]
+}
