@@ -1,13 +1,24 @@
+// import express from "express";
+// import axios from "axios";
+// import { DefaultAzureCredential } from "@azure/identity";
+// import { SecretClient } from "@azure/keyvault-secrets";
+// // import characterCodes from "./characters.json";
+// import renderCard from "./adaptiveCard.mjs";
+
 const express = require("express");
 const axios = require("axios");
 const { DefaultAzureCredential } = require("@azure/identity");
 const { SecretClient } = require("@azure/keyvault-secrets");
+// const characterCodes = require("./characters.json");
+const renderCard = require("./adaptiveCard.js");
+
 const app = express();
-const characterCodes = require("./chracters.json");
 
 const port = 3030;
 
 app.use(express.json());
+
+renderCard();
 
 const getSecret = async () => {
    const secretName = ["Vestaboard-API-Secret", "Vestaboard-RW-API-Key"];
